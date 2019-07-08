@@ -9,6 +9,10 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 public class MainActivity extends AppCompatActivity {
 
     private BroadcastReceiver receiver = new BroadcastReceiver() {
@@ -35,15 +39,28 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
+
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
-        registerReceiver(receiver, new IntentFilter(DowloadSevice.NOTIFICATION));
+        //registerReceiver(receiver, new IntentFilter(DowloadSevice.NOTIFICATION));
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        unregisterReceiver(receiver);
+        //unregisterReceiver(receiver);
     }
 
     public void Dowload(View view) {
@@ -54,6 +71,11 @@ public class MainActivity extends AppCompatActivity {
                 "https://www.vogella.com/index.html");
         startService(intent);
 
+    }
+
+    @Subscribe(sticky = true,threadMode = ThreadMode.MAIN)
+    public void OnCustomEvent(String message){
+        Toast.makeText(this, message + "&&&&", Toast.LENGTH_SHORT).show();
     }
     
 }
